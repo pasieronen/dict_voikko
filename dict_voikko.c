@@ -69,7 +69,7 @@ Datum dvoikko_init(PG_FUNCTION_ARGS) {
 		}
 	}
 
-	d->voikko = voikkoInit(&voikko_error, "fi-x-morpho", 0);
+	d->voikko = voikkoInit(&voikko_error, "fi", 0);
 	if (!d->voikko) {
 		ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
 				errmsg("voikko error: \"%s\"", voikko_error)));
@@ -131,7 +131,7 @@ Datum dvoikko_lexize(PG_FUNCTION_ARGS) {
     int * lex_n;
     char * base, * p, * match;
     size_t nmatch = 20;
-    regmatch_t matchptr[nmatch];
+    regmatch_t *matchptr = palloc0(nmatch * sizeof(matchptr));
     regmatch_t matchp;
     
     
@@ -178,7 +178,7 @@ Datum dvoikko_lexize(PG_FUNCTION_ARGS) {
             voikko_free_mor_analysis(analysis_arr);
         }
     }
-    
+    pfree(matchptr);
     pfree(txt);
     PG_RETURN_POINTER(res);
     
